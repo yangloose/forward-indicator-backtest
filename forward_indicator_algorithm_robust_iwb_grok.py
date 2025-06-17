@@ -6,6 +6,7 @@ from fredapi import Fred
 import yfinance as yf
 import streamlit as st
 import warnings
+from retrying import retry
 
 # Suppress warnings
 warnings.filterwarnings('ignore')
@@ -32,10 +33,12 @@ FRED_MAPPINGS = {
     'S&P_Global_Manufacturing_PMI': 'NAPM'  # Proxy (ISM used for S&P Global PMI)
 }
 
-# Fetch IWB monthly returns (from backtest_with_iwb.py)
+@retry(stop_max_attempt_number=3, wait_fixed=2000)
 def fetch_iwb_monthly_returns(start_date='2010-01-01'):
     try:
-        iwb = yf.download("IWB", start=start_date, interval="1mo", auto_adjust=True)
+        iwb = yf.download("IWB", start=start_date, interval="1mo", auto_adjust=True, progress=False)
+        if iwb.empty:
+            raise ValueError("No data returned for IWB")
         iwb = iwb[["Adj Close"]].rename(columns={"Adj Close": "IWB_Adj_Close"})
         iwb["IWB_Return"] = iwb["IWB_Adj_Close"].pct_change()
         iwb = iwb.dropna()
