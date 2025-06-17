@@ -1,0 +1,6 @@
+yfinance
+fredapi
+pandas
+numpy
+scikit-learn
+streamlit
