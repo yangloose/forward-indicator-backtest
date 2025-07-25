@@ -14,3 +14,4 @@ shap==0.46.0
 tweepy==4.14.0
 transformers==4.44.2
 torch==2.4.0
+requests==2.32.3
